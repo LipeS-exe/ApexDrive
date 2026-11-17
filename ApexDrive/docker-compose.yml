@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: apexdrive_postgres
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - apexdrive_pgdata:/var/lib/postgresql/data
+
+volumes:
+  apexdrive_pgdata:
