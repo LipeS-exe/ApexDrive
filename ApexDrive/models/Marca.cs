@@ -13,6 +13,5 @@ public class Marca
 
     [Required(ErrorMessage = "O campo País de Origem é obrigatório.")]
     public string PaisOrigem { get; set; }
-// Enquanto não tive veiculos para relacionar com marcar, não vou precisar dessa propriedade de navegação
-//  public ICollection<Veiculo> Veiculos { get; set; }
+    // public ICollection<Veiculo> Veiculos { get; set; }
 }

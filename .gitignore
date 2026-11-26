@@ -1,0 +1,17 @@
+# Variáveis de ambiente locais (não subir senhas reais)
+.env
+
+# Pastas de compilação e cache do C# / .NET (geram conflito se subirem pro Git)
+[Bb]in/
+[Oo]bj/
+out/
+
+# Arquivos de IDEs e editores
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Arquivos do projeto que não devem ir para o repositório
+imgs/

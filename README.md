@@ -29,10 +29,10 @@ O projeto foi dividido em 5 fatias verticais para desenvolvimento paralelo:
 
 | Integrante             | Módulo                                 | Responsabilidade Principal                                                                                                   |
 | :--------------------- | :-------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
-| **Integrante 1** | **Marcas (`Marca`)**            | CRUD de Marcas, Relacionamento **1:N** com Veículos e configuração do `AppDbContext`.                             |
-| **Integrante 2** | **Opcionais (`Opcional`)**      | CRUD de Acessórios, Relacionamento **N:N** com Veículos e serviço `AddSingleton` (`ContadorAcessosService`).    |
-| **Integrante 3** | **Veículos (`Veiculo`)**       | CRUD de Veículos e endpoints de vinculação **N:N** (`Veiculo <-> Opcional`).                                      |
-| **Integrante 4** | **Clientes (`Cliente`)**        | CRUD de Clientes, validação de CPF único e histórico **1:N** de Propostas do cliente.                              |
-| **Integrante 5** | **Propostas (`PropostaVenda`)** | Registro e aprovação de propostas, baixa automática de estoque e serviço `AddTransient` (`CalculadoraJurosService`). |
+| **Felipe(Lider**)     | **Marcas (`Marca`)**            | CRUD de Marcas, Relacionamento **1:N** com Veículos e configuração do `AppDbContext`.                             |
+| **João Vitor Amaro** | **Opcionais (`Opcional`)**      | CRUD de Acessórios, Relacionamento **N:N** com Veículos e serviço `AddSingleton` (`ContadorAcessosService`).    |
+| **Thiago**       | **Veículos (`Veiculo`)**       | CRUD de Veículos e endpoints de vinculação **N:N** (`Veiculo <-> Opcional`).                                      |
+| **Higor**        | **Clientes (`Cliente`)**        | CRUD de Clientes, validação de CPF único e histórico **1:N** de Propostas do cliente.                              |
+| **Felipe Moura** | **Propostas (`PropostaVenda`)** | Registro e aprovação de propostas, baixa automática de estoque e serviço `AddTransient` (`CalculadoraJurosService`). |
 
 ---
