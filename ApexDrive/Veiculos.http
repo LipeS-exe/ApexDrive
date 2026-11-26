@@ -1,0 +1,82 @@
+# Testes do módulo de Veículos (Integrante 3 - Thiago)
+# Antes de testar, precisa existir pelo menos 1 Marca e 1 Opcional no banco.
+# Enquanto os módulos de Marca e Opcional não estão prontos, dá para inserir direto no PostgreSQL:
+#   docker exec -it apexdrive_postgres psql -U apeXdrive_us0r -d ApexDrIve_dB
+#   INSERT INTO "Marcas" ("Nome", "PaisOrigem") VALUES ('Toyota', 'Japão');
+#   INSERT INTO "Opcionais" ("Nome", "Categoria") VALUES ('Teto Solar', 'Conforto');
+
+@host = http://localhost:5021
+
+### Listar todos -> 200
+GET {{host}}/api/veiculos
+
+### Buscar por id -> 200 (ou 404 se não existir)
+GET {{host}}/api/veiculos/1
+
+### Cadastrar -> 201
+POST {{host}}/api/veiculos
+Content-Type: application/json
+
+{
+  "modelo": "Corolla XEi",
+  "anoFabricacao": 2023,
+  "anoModelo": 2024,
+  "placa": "ABC1D23",
+  "preco": 135000,
+  "quilometragem": 18000,
+  "marcaId": 1
+}
+
+### Cadastrar com a mesma placa -> 400 (RN01)
+POST {{host}}/api/veiculos
+Content-Type: application/json
+
+{
+  "modelo": "Corolla GLi",
+  "anoFabricacao": 2022,
+  "anoModelo": 2022,
+  "placa": "ABC1D23",
+  "preco": 110000,
+  "quilometragem": 40000,
+  "marcaId": 1
+}
+
+### Cadastrar com preço zero -> 400 (RN02)
+POST {{host}}/api/veiculos
+Content-Type: application/json
+
+{
+  "modelo": "Yaris",
+  "anoFabricacao": 2024,
+  "anoModelo": 2024,
+  "placa": "XYZ9K87",
+  "preco": 0,
+  "quilometragem": 0,
+  "marcaId": 1
+}
+
+### Atualizar -> 204
+PUT {{host}}/api/veiculos/1
+Content-Type: application/json
+
+{
+  "modelo": "Corolla XEi",
+  "anoFabricacao": 2023,
+  "anoModelo": 2024,
+  "placa": "ABC1D23",
+  "preco": 129900,
+  "quilometragem": 19500,
+  "marcaId": 1
+}
+
+### Vincular o opcional 1 ao veículo 1 -> 204 (N:N)
+POST {{host}}/api/veiculos/1/opcionais/1
+
+### Vincular de novo o mesmo opcional -> 400 (RN04)
+POST {{host}}/api/veiculos/1/opcionais/1
+
+### Desvincular o opcional 1 do veículo 1 -> 204
+DELETE {{host}}/api/veiculos/1/opcionais/1
+
+### Excluir -> 204 (ou 404 se não existir)
+DELETE {{host}}/api/veiculos/1
