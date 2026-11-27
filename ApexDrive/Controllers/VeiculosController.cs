@@ -1,4 +1,3 @@
-using ApexDrive.Dtos;
 using ApexDrive.Models;
 using ApexDrive.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -41,11 +40,11 @@ public class VeiculosController : ControllerBase
 
     // POST api/veiculos -> 201 ou 400
     [HttpPost]
-    public async Task<ActionResult<Veiculo>> PostVeiculo(VeiculoDto dto)
+    public async Task<ActionResult<Veiculo>> PostVeiculo(Veiculo veiculo)
     {
         try
         {
-            var criado = await _service.CriarAsync(dto);
+            var criado = await _service.CriarAsync(veiculo);
             return CreatedAtAction(nameof(GetVeiculo), new { id = criado.Id }, criado);
         }
         catch (RegraDeNegocioException ex)
@@ -56,11 +55,11 @@ public class VeiculosController : ControllerBase
 
     // PUT api/veiculos/5 -> 204, 404 ou 400
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutVeiculo(int id, VeiculoDto dto)
+    public async Task<IActionResult> PutVeiculo(int id, Veiculo veiculo)
     {
         try
         {
-            var atualizado = await _service.AtualizarAsync(id, dto);
+            var atualizado = await _service.AtualizarAsync(id, veiculo);
 
             if (!atualizado)
             {

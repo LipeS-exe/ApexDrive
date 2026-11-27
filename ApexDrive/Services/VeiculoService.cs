@@ -1,6 +1,4 @@
-using ApexDrive.Dtos;
 using ApexDrive.Models;
-using ApexDrive.Models.Enums;
 using ApexDrive.Repositories.Interfaces;
 
 namespace ApexDrive.Services;
@@ -25,23 +23,16 @@ public class VeiculoService : IVeiculoService
         return await _repository.ObterPorIdAsync(id);
     }
 
-    public async Task<Veiculo> CriarAsync(VeiculoDto dto)
+    public async Task<Veiculo> CriarAsync(Veiculo veiculo)
     {
-        dto.Placa = dto.Placa.Trim().ToUpper();
-        await ValidarRegrasAsync(dto, idIgnorado: null);
+        veiculo.Placa = veiculo.Placa.Trim().ToUpper();
+        await ValidarRegrasAsync(veiculo, idIgnorado: null);
 
-        var veiculo = new Veiculo
-        {
-            Modelo = dto.Modelo,
-            AnoFabricacao = dto.AnoFabricacao,
-            AnoModelo = dto.AnoModelo,
-            Placa = dto.Placa,
-            Preco = dto.Preco,
-            Quilometragem = dto.Quilometragem,
-            MarcaId = dto.MarcaId,
-            Status = StatusVeiculo.Disponivel,   // todo carro novo entra disponível
-            DataCadastro = DateTime.UtcNow       // PostgreSQL exige data em UTC
-        };
+        veiculo.Id = 0;                              // quem gera o Id é o banco
+        veiculo.Status = "Disponivel";               // todo carro novo entra disponível
+        veiculo.DataCadastro = DateTime.UtcNow;      // PostgreSQL exige data em UTC
+        veiculo.Marca = null;                        // a marca vem só pelo MarcaId
+        veiculo.Opcionais = new List<Opcional>();    // opcionais entram pelo endpoint de vincular
 
         await _repository.AdicionarAsync(veiculo);
         await _repository.SalvarAsync();
@@ -51,7 +42,7 @@ public class VeiculoService : IVeiculoService
         return criado ?? veiculo;
     }
 
-    public async Task<bool> AtualizarAsync(int id, VeiculoDto dto)
+    public async Task<bool> AtualizarAsync(int id, Veiculo veiculoAtualizado)
     {
         var veiculo = await _repository.ObterPorIdAsync(id);
 
@@ -60,16 +51,17 @@ public class VeiculoService : IVeiculoService
             return false;
         }
 
-        dto.Placa = dto.Placa.Trim().ToUpper();
-        await ValidarRegrasAsync(dto, idIgnorado: id);
+        veiculoAtualizado.Placa = veiculoAtualizado.Placa.Trim().ToUpper();
+        await ValidarRegrasAsync(veiculoAtualizado, idIgnorado: id);
 
-        veiculo.Modelo = dto.Modelo;
-        veiculo.AnoFabricacao = dto.AnoFabricacao;
-        veiculo.AnoModelo = dto.AnoModelo;
-        veiculo.Placa = dto.Placa;
-        veiculo.Preco = dto.Preco;
-        veiculo.Quilometragem = dto.Quilometragem;
-        veiculo.MarcaId = dto.MarcaId;
+        // Copia só os campos que podem mudar (Id, Status e DataCadastro ficam como estão)
+        veiculo.Modelo = veiculoAtualizado.Modelo;
+        veiculo.AnoFabricacao = veiculoAtualizado.AnoFabricacao;
+        veiculo.AnoModelo = veiculoAtualizado.AnoModelo;
+        veiculo.Placa = veiculoAtualizado.Placa;
+        veiculo.Preco = veiculoAtualizado.Preco;
+        veiculo.Quilometragem = veiculoAtualizado.Quilometragem;
+        veiculo.MarcaId = veiculoAtualizado.MarcaId;
 
         await _repository.SalvarAsync();
         return true;
@@ -131,34 +123,34 @@ public class VeiculoService : IVeiculoService
         return true;
     }
 
-    private async Task ValidarRegrasAsync(VeiculoDto dto, int? idIgnorado)
+    private async Task ValidarRegrasAsync(Veiculo veiculo, int? idIgnorado)
     {
         // RN02: preço maior que zero
-        if (dto.Preco <= 0)
+        if (veiculo.Preco <= 0)
         {
             throw new RegraDeNegocioException("O preço deve ser maior que zero.");
         }
 
         // RN02: ano de fabricação até o ano que vem
         int anoLimite = DateTime.UtcNow.Year + 1;
-        if (dto.AnoFabricacao < 1900 || dto.AnoFabricacao > anoLimite)
+        if (veiculo.AnoFabricacao < 1900 || veiculo.AnoFabricacao > anoLimite)
         {
             throw new RegraDeNegocioException($"O ano de fabricação deve estar entre 1900 e {anoLimite}.");
         }
 
         // Ano do modelo: igual ao de fabricação ou o ano seguinte
-        if (dto.AnoModelo < dto.AnoFabricacao || dto.AnoModelo > dto.AnoFabricacao + 1)
+        if (veiculo.AnoModelo < veiculo.AnoFabricacao || veiculo.AnoModelo > veiculo.AnoFabricacao + 1)
         {
             throw new RegraDeNegocioException("O ano do modelo deve ser igual ao ano de fabricação ou o ano seguinte.");
         }
 
-        if (!await _repository.MarcaExisteAsync(dto.MarcaId))
+        if (!await _repository.MarcaExisteAsync(veiculo.MarcaId))
         {
             throw new RegraDeNegocioException("Marca não encontrada.");
         }
 
         // RN01: placa não pode repetir
-        if (await _repository.PlacaExisteAsync(dto.Placa, idIgnorado))
+        if (await _repository.PlacaExisteAsync(veiculo.Placa, idIgnorado))
         {
             throw new RegraDeNegocioException("Já existe um veículo com essa placa.");
         }

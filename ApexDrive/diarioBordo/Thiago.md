@@ -2,8 +2,7 @@
 
 ## Dia 25 de Novembro
 
-- Criação do `Veiculo.cs` (models) e do enum `StatusVeiculo.cs` (Disponivel, Reservado, Vendido)
-- Criação do `VeiculoDto.cs` para receber os dados do POST e do PUT
+- Criação do `Veiculo.cs` (models)
 - Criação do `IVeiculoRepository.cs` e do `VeiculoRepository.cs` (acesso ao banco com async/await)
 - Criação do `IVeiculoService.cs` e do `VeiculoService.cs` (regras de negócio)
 - Criação do `VeiculosController.cs` com o CRUD e os endpoints de vincular/desvincular opcional (N:N)
@@ -12,6 +11,13 @@
 - No `Opcional.cs`: adicionei `ICollection<Veiculo> Veiculos` (lado do Opcional no N:N)
 - No `Program.cs`: registro do Repository e do Service com `AddScoped` e configuração do JSON (`IgnoreCycles`)
 - Criação do `Veiculos.http` com os testes de cada endpoint
+
+## Dia 26 de Novembro
+
+- Retirados o enum `StatusVeiculo` e o `VeiculoDto`, porque esses assuntos não foram vistos em aula
+- O `Status` virou texto (`"Disponivel"`, `"Reservado"`, `"Vendido"`)
+- O Controller passou a receber a própria classe `Veiculo` no POST e no PUT, igual ao `Jogo` da aula
+- Nova migration para mudar a coluna `Status` de número para texto
 
 ---
 
@@ -74,11 +80,11 @@ Ninguém usa `new`. Quando chega uma requisição, o ASP.NET monta essa corrente
 3. Achou: **200 OK**. Não achou (veio `null`): **404 Not Found**.
 
 ### POST /api/veiculos (cadastrar)
-1. O JSON do corpo vira um `VeiculoDto` (desserialização).
-2. O `[ApiController]` confere as validações do DTO (`[Required]`, `[StringLength]`). Se falhar, devolve **400** sozinho.
-3. O Controller chama `_service.CriarAsync(dto)`.
+1. O JSON do corpo vira um objeto `Veiculo` (desserialização).
+2. O `[ApiController]` confere as validações da classe (`[Required]`, `[StringLength]`, `[Range]`). Se falhar, devolve **400** sozinho.
+3. O Controller chama `_service.CriarAsync(veiculo)`.
 4. O Service deixa a placa em maiúsculo e valida as regras. Se alguma falhar, lança `RegraDeNegocioException`.
-5. Tudo certo: o Service monta o `Veiculo`, coloca `Status = Disponivel` e `DataCadastro = DateTime.UtcNow`.
+5. Tudo certo: o Service zera o `Id` (quem gera é o banco), coloca `Status = "Disponivel"` e `DataCadastro = DateTime.UtcNow`.
 6. O Repository faz `AddAsync` e depois `SaveChangesAsync`. Só no `SaveChanges` o `INSERT` vai pro banco.
 7. O Controller devolve **201 Created** com o `CreatedAtAction`, que coloca o endereço do novo carro no cabeçalho `Location`.
 8. Se veio a exceção: o `catch` devolve **400 Bad Request** com a mensagem.
@@ -86,7 +92,7 @@ Ninguém usa `new`. Quando chega uma requisição, o ASP.NET monta essa corrente
 ### PUT /api/veiculos/{id} (atualizar)
 1. O Service busca o carro pelo id. Não achou: **404**.
 2. Valida as regras. A placa é conferida ignorando o próprio carro (`idIgnorado`), senão ele "conflitaria com ele mesmo".
-3. Copia os campos do DTO para o carro que veio do banco.
+3. Copia os campos que podem mudar para o carro que veio do banco. `Id`, `Status` e `DataCadastro` não mudam pelo PUT.
 4. `SaveChangesAsync`: o EF compara com o que tinha antes (change tracking) e faz o `UPDATE`.
 5. Devolve **204 No Content**. Regra quebrada: **400**.
 
@@ -124,7 +130,7 @@ O DELETE na mesma rota faz o contrário: `veiculo.Opcionais.Remove(opcional)` e 
 
 ## 6. Perguntas que o professor pode fazer
 
-**Por que DTO?** Para o cliente não mandar o que não deve, como `Id`, `Status` e `DataCadastro`. Quem define esses campos é a API.
+**O cliente pode mandar o `Id` ou o `Status` no POST?** Pode mandar, mas não adianta: o Service zera o `Id` e coloca `Status = "Disponivel"` antes de salvar. Quem define esses campos é a API.
 
 **Por que async/await?** Enquanto espera o banco responder, a thread fica livre para atender outra requisição. O servidor aguenta mais gente ao mesmo tempo.
 

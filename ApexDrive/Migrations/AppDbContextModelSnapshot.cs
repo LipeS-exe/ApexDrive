@@ -69,7 +69,8 @@ namespace ApexDrive.Migrations
 
                     b.Property<string>("Placa")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)");
 
                     b.Property<decimal>("Preco")
                         .HasColumnType("numeric");
@@ -77,8 +78,9 @@ namespace ApexDrive.Migrations
                     b.Property<int>("Quilometragem")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

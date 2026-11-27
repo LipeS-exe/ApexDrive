@@ -11,12 +11,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // IgnoreCycles evita loop infinito no JSON (Marca -> Veiculos -> Marca...)
-// JsonStringEnumConverter mostra o Status como texto ("Disponivel") em vez de número
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
 // Injeção de dependência - Veículos (Integrante 3)
